@@ -1725,7 +1725,22 @@ extension AuthenticationType: RawRepresentable, CustomStringConvertible {
 
 extension Accessibility: RawRepresentable, CustomStringConvertible {
     public init?(rawValue: String) {
-        if #available(OSX 10.10, *) {
+        if #available(iOS 12, *) {
+            switch rawValue {
+            case String(kSecAttrAccessibleWhenUnlocked):
+                self = .whenUnlocked
+            case String(kSecAttrAccessibleAfterFirstUnlock):
+                self = .afterFirstUnlock
+            case String(kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly):
+                self = .whenPasscodeSetThisDeviceOnly
+            case String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly):
+                self = .whenUnlockedThisDeviceOnly
+            case String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly):
+                self = .afterFirstUnlockThisDeviceOnly
+            default:
+                return nil
+            }
+        } else if #available(OSX 10.10, *) {
             switch rawValue {
             case String(kSecAttrAccessibleWhenUnlocked):
                 self = .whenUnlocked
@@ -1780,7 +1795,11 @@ extension Accessibility: RawRepresentable, CustomStringConvertible {
             return String(kSecAttrAccessibleAfterFirstUnlock)
         #if !targetEnvironment(macCatalyst)
         case .always:
-            return String(kSecAttrAccessibleAlways)
+            if #available(iOS 12, *) {
+                fatalError("'Accessibility.Always' is not available on this version of OS.")
+            } else {
+                return String(kSecAttrAccessibleAlways)
+            }
         #endif
         case .whenPasscodeSetThisDeviceOnly:
             if #available(OSX 10.10, *) {
@@ -1794,7 +1813,11 @@ extension Accessibility: RawRepresentable, CustomStringConvertible {
             return String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly)
         #if !targetEnvironment(macCatalyst)
         case .alwaysThisDeviceOnly:
-            return String(kSecAttrAccessibleAlwaysThisDeviceOnly)
+            if #available(iOS 12, *) {
+                fatalError("'Accessibility.AlwaysThisDeviceOnly' is not available on this version of OS.")
+            } else {
+                return String(kSecAttrAccessibleAlwaysThisDeviceOnly)
+            }
         #endif
         }
     }
